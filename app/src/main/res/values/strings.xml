@@ -5,4 +5,8 @@
     <string name="false_button">Ложь</string>
     <string name="cheat_text">Показать подсказку</string>
     <string name="next_button">Кнопка переключения на следующий вопрос</string>
+    <string name="quiestion1">Вопрос 1</string>
+    <string name="quiestion2">Вопрос 2</string>
+    <string name="quiestion3">Вопрос 3</string>
+    <string name="quiestion4">Вопрос 4</string>
 </resources>
