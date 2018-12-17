@@ -1,5 +1,7 @@
 package com.example.alexeybartenev.geoquiz;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,10 +13,10 @@ import android.widget.Toast;
 public class QuizActivity extends AppCompatActivity {
 
     private Question[] mQuestions = {
-            new Question(R.string.quiestion1,false,0),
-            new Question(R.string.quiestion2,false,0),
-            new Question(R.string.quiestion3,false,0),
-            new Question(R.string.quiestion4,false,0),
+            new Question(R.string.quiestion1,false,true,0),
+            new Question(R.string.quiestion2,false,true,0),
+            new Question(R.string.quiestion3,true,false,0),
+            new Question(R.string.quiestion4,false,false,0)
     };
 
     boolean check_results = true;
@@ -22,9 +24,13 @@ public class QuizActivity extends AppCompatActivity {
     int true_res = 0;
     Button true_but;
     Button false_but;
+    ImageButton cheat_but;
     TextView question_txt;
+    private static final int REQUEST_CODE_CHEAT = 0;
+
 
     private int questionId = 0; //ИД отображаемого вопроса
+    private boolean mIsCheater;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -34,8 +40,10 @@ public class QuizActivity extends AppCompatActivity {
 
     private void updateQuestion(boolean p_bool) {
         if (mQuestions[questionId].getMflag_answered() == 0) {
-            mQuestions[questionId].setAnswer(p_bool);
-            mQuestions[questionId].setMflag_answered(1);
+            if (mIsCheater) {Toast.makeText(this, R.string.judgment_toast, Toast.LENGTH_SHORT).show();} else {
+                mQuestions[questionId].setAnswer(p_bool);
+                mQuestions[questionId].setMflag_answered(1);
+            }
         }
     }
 
@@ -51,6 +59,7 @@ public class QuizActivity extends AppCompatActivity {
         }
         if (!check_results) {
             questionId = (questionId + 1) % mQuestions.length;
+            mIsCheater = false;
             question_txt.setText(mQuestions[questionId].getMquestionId());
             if (mQuestions[questionId].getMflag_answered() == 1) {
                 true_but.setEnabled(false);
@@ -61,7 +70,6 @@ public class QuizActivity extends AppCompatActivity {
             }
         } else Toast.makeText(this, "Правда = "+true_res+" Ложь="+false_res, Toast.LENGTH_SHORT).show();
     }
-
 
 
     void go_to_prev_question(){
@@ -75,6 +83,21 @@ public class QuizActivity extends AppCompatActivity {
         } else {
             false_but.setEnabled(false);
             true_but.setEnabled(false);
+        }
+    }
+
+    /*Вызыывается при возврате результата интента из дочерней активности*/
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+            mIsCheater = CheatActivity.wasAnswerShown(data);
         }
     }
 
@@ -107,8 +130,18 @@ public class QuizActivity extends AppCompatActivity {
                 updateQuestion(false);
             }
         });
-        ImageButton cheat_but = findViewById(R.id.cheat_but);
+        cheat_but = findViewById(R.id.cheat_but);
         cheat_but.setImageResource(android.R.drawable.ic_menu_help);
+        cheat_but.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                start Activity
+                boolean answerIsTrue = mQuestions[questionId].isRealAnswer();
+                Intent intent = CheatActivity.newIntent(QuizActivity.this,answerIsTrue);
+//                startActivity(intent);
+                startActivityForResult(intent,REQUEST_CODE_CHEAT);
+            }
+        });
         ImageButton next_but = findViewById(R.id.next_but);
         next_but.setImageResource(android.R.drawable.ic_media_next);
         next_but.setOnClickListener(new View.OnClickListener() {

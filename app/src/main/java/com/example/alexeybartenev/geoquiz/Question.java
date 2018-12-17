@@ -3,11 +3,13 @@ package com.example.alexeybartenev.geoquiz;
 public class Question {
     private int mquestionId;
     private boolean mAnswer;
+    private boolean mRealAnswer;
     private int mflag_answered;
 
-    public Question(int mquestionId, boolean answer, int mflag_answered) {
+    public Question(int mquestionId, boolean answer, boolean realAnswer, int mflag_answered) {
         this.mquestionId = mquestionId;
         mAnswer = answer;
+        mRealAnswer = realAnswer;
         this.mflag_answered = mflag_answered;
     }
 
@@ -25,6 +27,14 @@ public class Question {
 
     public void setAnswer(boolean answer) {
         mAnswer = answer;
+    }
+
+    public boolean isRealAnswer() {
+        return mRealAnswer;
+    }
+
+    public void setRealAnswer(boolean realAnswer) {
+        mRealAnswer = realAnswer;
     }
 
     public int getMflag_answered() {
