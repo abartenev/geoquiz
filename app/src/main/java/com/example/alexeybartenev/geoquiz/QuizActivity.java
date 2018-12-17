@@ -36,6 +36,7 @@ public class QuizActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("Q_ID",questionId);
+        outState.putBoolean("C_ID",mIsCheater);
     }
 
     private void updateQuestion(boolean p_bool) {
@@ -108,6 +109,7 @@ public class QuizActivity extends AppCompatActivity {
         question_txt = findViewById(R.id.questionTextView);
         if (savedInstanceState != null) {
             questionId = savedInstanceState.getInt("Q_ID");
+            mIsCheater = savedInstanceState.getBoolean("C_ID");
         }
         question_txt.setText(mQuestions[questionId].getMquestionId());
         question_txt.setOnClickListener(new View.OnClickListener() {
