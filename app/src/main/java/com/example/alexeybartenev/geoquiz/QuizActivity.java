@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -19,6 +20,8 @@ public class QuizActivity extends AppCompatActivity {
             new Question(R.string.quiestion4,false,false,0)
     };
 
+    int tips_count = 3;
+    TextView tip_textcount;
     boolean check_results = true;
     int false_res = 0;
     int true_res = 0;
@@ -37,6 +40,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putInt("Q_ID",questionId);
         outState.putBoolean("C_ID",mIsCheater);
+        outState.putInt("TIPCOUNT",tips_count);
     }
 
     private void updateQuestion(boolean p_bool) {
@@ -105,12 +109,17 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("myLog", "QuizActivity:onCreate:112: ");
         setContentView(R.layout.activity_quiz);
         question_txt = findViewById(R.id.questionTextView);
         if (savedInstanceState != null) {
             questionId = savedInstanceState.getInt("Q_ID");
             mIsCheater = savedInstanceState.getBoolean("C_ID");
+            tips_count = savedInstanceState.getInt("TIPCOUNT");
         }
+        tip_textcount = (TextView) findViewById(R.id.tip_count);
+        tip_textcount.setText("Количество подсказок: "+tips_count);
+        Log.d("myLog", "QuizActivity:onCreate:120: "+"Количество подсказок: "+tips_count);
         question_txt.setText(mQuestions[questionId].getMquestionId());
         question_txt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,10 +147,15 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                start Activity
-                boolean answerIsTrue = mQuestions[questionId].isRealAnswer();
-                Intent intent = CheatActivity.newIntent(QuizActivity.this,answerIsTrue);
+                if (tips_count > 0) {
+                    tips_count-=1;
+                    boolean answerIsTrue = mQuestions[questionId].isRealAnswer();
+                    Intent intent = CheatActivity.newIntent(QuizActivity.this, answerIsTrue);
 //                startActivity(intent);
-                startActivityForResult(intent,REQUEST_CODE_CHEAT);
+                    startActivityForResult(intent, REQUEST_CODE_CHEAT);
+                } else {
+                    cheat_but.setEnabled(false);
+                }
             }
         });
         ImageButton next_but = findViewById(R.id.next_but);
@@ -152,5 +166,24 @@ public class QuizActivity extends AppCompatActivity {
                 go_to_next_question();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("myLog", "QuizActivity:onDestroy:173: ");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("myLog", "QuizActivity:onStop:179: ");
+        tip_textcount.setText("Количество подсказок: "+tips_count);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("myLog", "QuizActivity:onResume:185: ");
     }
 }
